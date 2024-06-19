@@ -4,12 +4,13 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from typing import List, Dict
 
-cred = credentials.Certificate("ar-furniture-789f5-firebase-adminsdk-w4jtf-eb60bd3446.json")
+cred = credentials.Certificate("ar-furniture-789f5-firebase-adminsdk-w4jtf-e20c880149.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
 app = FastAPI()
+
 
 @app.get('/')
 def index():
