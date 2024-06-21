@@ -102,5 +102,41 @@ async def train():
         raise HTTPException(status_code=400, detail=str(e))
 
 
+class PredictRequest(BaseModel):
+    features: list
+
+
+@app.post("/predict/")
+async def predict(request: PredictRequest):
+    try:
+        # Transform the features into a numpy array and reshape it
+        X_test = np.array(request.features).reshape(1, -1)
+
+        # Get the indices of the nearest neighbors and their distances
+        distances, indices = knn.kneighbors(X_test)
+
+        # Get the products from the database
+        ref = db.reference('products')
+        products = ref.get()
+        product_keys = list(products.keys())
+
+        # Prepare the response
+        response = []
+        for i in range(len(indices[0])):
+            index = indices[0][i]
+            distance = distances[0][i]
+            product = products[product_keys[index]]
+            response.append({
+                "product": product,
+                "distance": distance
+            })
+
+        return response
+    except Exception as e:
+        print(f"Exception type: {type(e)}")
+        print(f"Exception message: {str(e)}")
+        print("Traceback:")
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
 
 
