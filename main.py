@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 import firebase_admin
 from firebase_admin import credentials, db
 from firebase_admin import firestore
-from typing import List, Dict
+from typing import List, Dict, Union
 from pydantic import BaseModel
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
@@ -139,4 +139,45 @@ async def predict(request: PredictRequest):
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
+
+class PredictMultipleRequest(BaseModel):
+    products: list[list[Union[int, float]]]
+
+
+@app.post("/predict_multiple/")
+async def predict_multiple(request: PredictMultipleRequest):
+    try:
+        # Prepare the response
+        response = []
+
+        # For each product in the request
+        for product_features in request.products:
+            # Transform the features into a numpy array and reshape it
+            X_test = np.array(product_features).reshape(1, -1)
+
+            # Get the indices of the nearest neighbors and their distances
+            distances, indices = knn.kneighbors(X_test)
+
+            # Get the products from the database
+            ref = db.reference('products')
+            products = ref.get()
+            product_keys = list(products.keys())
+
+            # For each neighbor
+            for i in range(len(indices[0])):
+                index = indices[0][i]
+                distance = distances[0][i]
+                product = products[product_keys[index]]
+                response.append({
+                    "product": product,
+                    "distance": distance
+                })
+
+        return response
+    except Exception as e:
+        print(f"Exception type: {type(e)}")
+        print(f"Exception message: {str(e)}")
+        print("Traceback:")
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
 
