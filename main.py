@@ -181,3 +181,79 @@ async def predict_multiple(request: PredictMultipleRequest):
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
+
+def initialize_encoders():
+    ref = db.reference('products')
+    products = ref.get()
+    categories = {key: set() for key in ['category', 'material']}
+    if products:
+        for key, value in products.items():
+            for key1 in ['category', 'material']:
+                value1 = value.get(key1, 'N/A')
+                if value1 != 'N/A':
+                    categories[key1].add(value1)
+    encoders = {key: LabelEncoder().fit(list(val)) for key, val in categories.items()}
+    return encoders
+
+
+@app.get("/predict_by_id/{product_id}")
+async def predict_by_id(product_id: str):
+    try:
+        # Initialize encoders
+        encoders = initialize_encoders()
+
+        # Get the product from the database
+        ref = db.reference(f'products/{product_id}')
+        product = ref.get()
+
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        # Extract the features from the product
+        keys = ['category', 'material', 'price', 'sizeX', 'sizeY', 'sizeZ', 'weight']
+        product_features = []
+        for key in keys:
+            value = product.get(key, 'N/A')
+            if key in ['category', 'material']:
+                if value != 'N/A':
+                    value = encoders[key].transform([value])[0]
+            else:
+                try:
+                    value = pd.to_numeric(value)
+                except ValueError:
+                    value = 0  # default value
+            product_features.append(value)
+
+        # Transform the features into a numpy array and reshape it
+        X_test = np.array(product_features).reshape(1, -1)
+
+        # Get the indices of the nearest neighbors and their distances
+        distances, indices = knn.kneighbors(X_test)
+
+        # Get all products from the database
+        ref = db.reference('products')
+        products = ref.get()
+        product_keys = list(products.keys())
+
+        # Prepare the response
+        response = []
+        for i in range(len(indices[0])):
+            index = indices[0][i]
+            distance = distances[0][i]
+            neighbor_product_id = product_keys[index]
+            # Skip the neighbor if its id is the same as the product_id
+            if neighbor_product_id == product_id or distance > 1500:
+                continue
+            neighbor_product = products[neighbor_product_id]
+            response.append({
+                "product": neighbor_product,
+                "distance": distance
+            })
+
+        return response
+    except Exception as e:
+        print(f"Exception type: {type(e)}")
+        print(f"Exception message: {str(e)}")
+        print("Traceback:")
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
