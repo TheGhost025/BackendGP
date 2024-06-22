@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import traceback
 from sklearn.preprocessing import LabelEncoder
+from collections import Counter
 
 
 # Initialize Firebase Admin
@@ -257,3 +258,59 @@ async def predict_by_id(product_id: str):
         print("Traceback:")
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
+
+
+class User(BaseModel):
+    user_id: str
+
+
+def fetch_user_product_ids(user_id: str):
+    collections = ["cart", "comment and reviews", "favourite", "history_purchased"]
+    product_ids = []
+
+    for collection in collections:
+        # Access the Firestore collection
+        doc_ref = dbs.collection("users").document(user_id).collection(collection)
+        docs = doc_ref.stream()
+
+        for doc in docs:
+            product_ids.append(doc.id)
+
+    # Convert the list of product_ids into a dictionary
+    product_ids_dict = dict(Counter(product_ids))
+
+    # Sort the dictionary by count in descending order
+    product_ids_dict = dict(sorted(product_ids_dict.items(), key=lambda item: item[1], reverse=True))
+
+    return product_ids_dict
+
+
+@app.get("/user_products")
+async def get_user_products(user: User):
+    return fetch_user_product_ids(user.user_id)
+
+
+@app.get("/user_products_neighbours/{user_id}")
+async def get_user_products_neighbours(user_id: str):
+    # Fetch the product IDs associated with the user
+    user_product_ids_dict = fetch_user_product_ids(user_id)
+
+    # Prepare the response
+    response = {}
+
+    # For each product ID
+    for product_id, count in user_product_ids_dict.items():
+        try:
+            # Get the nearest neighbors for the product
+            neighbours = await predict_by_id(product_id)
+
+            # Add the neighbours to the response
+            response[product_id] = {
+                "count": count,
+                "neighbours": neighbours
+            }
+        except HTTPException as e:
+            print(f"Product {product_id} not found. Skipping...")
+
+    return response
+
