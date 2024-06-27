@@ -10,6 +10,7 @@ import pandas as pd
 import traceback
 from sklearn.preprocessing import LabelEncoder
 from collections import Counter
+from datetime import datetime
 
 
 # Initialize Firebase Admin
@@ -55,6 +56,59 @@ class NewUser(BaseModel):
     comment_and_reviews: List[Dict] = []
     favourite: List[Dict] = []
     history_purchased: List[Dict] = []
+
+
+@app.post("/users/add-edit/")
+def create_user(user: NewUser):
+    try:
+        # Access the Firestore collection
+        user_ref = dbs.collection("users").document(user.user_id)
+        user_ref.get()
+        if user_ref.get().exists:
+            new_or_edit = 1
+            user_ref.set(
+                user.dict(by_alias=True,
+                          exclude={"cart", "comment_and_reviews", "favourite", "history_purchased", "user_id"}))
+        else:
+            new_or_edit = 0
+            user_ref.set(
+                user.dict(by_alias=True,
+                          exclude={"cart", "comment_and_reviews", "favourite", "history_purchased", "user_id"}))
+
+        # Create collections by default
+        user_ref.collection('cart')
+        user_ref.collection('comment and reviews')
+        user_ref.collection('favourite')
+        user_ref.collection('history_purchased')
+
+        if user.cart:
+            cart_ref = user_ref.collection('cart')
+            for item in user.cart:
+                item['date'] = datetime.now()
+                cart_ref.document(item['product_id']).set(item)
+        if user.comment_and_reviews:
+            comments_and_reviews_ref = user_ref.collection('comment and reviews')
+            for item in user.comment_and_reviews:
+                item['date'] = datetime.now()
+                comments_and_reviews_ref.document(item['product_id']).set(item)
+        if user.favourite:
+            favourite_ref = user_ref.collection('favourite')
+            for item in user.favourite:
+                item['date'] = datetime.now()
+                favourite_ref.document(item['product_id']).set(item)
+        if user.history_purchased:
+            history_purchased_ref = user_ref.collection('history_purchased')
+            for item in user.history_purchased:
+                item['date'] = datetime.now()
+                history_purchased_ref.document(item['product_id']).set(item)
+
+        if new_or_edit:
+            return {"message": "User edited successfully"}
+        else:
+            return {"message": "User created successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ------------- Machine Learning --------------------
