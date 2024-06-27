@@ -3,7 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, db
 from firebase_admin import firestore
 from typing import List, Dict, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 import pandas as pd
@@ -39,6 +39,25 @@ def index():
         users.append(user_data)
 
     return users
+
+
+class NewUser(BaseModel):
+    user_id: str
+    firstName: str
+    lastName: str
+    address: str
+    birthofdate: str
+    gender: str
+    optionaladdress: str
+    usertype: str
+    email: EmailStr
+    cart: List[Dict] = []
+    comment_and_reviews: List[Dict] = []
+    favourite: List[Dict] = []
+    history_purchased: List[Dict] = []
+
+
+# ------------- Machine Learning --------------------
 
 
 # Instantiate the KNN NearestNeighbour model with k=3
