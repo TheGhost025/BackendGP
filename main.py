@@ -371,11 +371,21 @@ async def get_user_products_neighbours(user_id: str):
     # Prepare the response
     response = {}
 
+    # Create a list of all product IDs
+    all_product_ids = list(user_product_ids_dict.keys())
+
     # For each product ID
     for product_id, count in user_product_ids_dict.items():
         try:
             # Get the nearest neighbors for the product
             neighbours = await predict_by_id(product_id)
+
+            # Print out the structure of the neighbour dictionary
+            for neighbour in neighbours:
+                print(neighbour)
+
+            # Remove any neighbours that are in the list of all product IDs
+            neighbours = [neighbour for neighbour in neighbours if neighbour['product']['id'] not in all_product_ids]
 
             # Add the neighbours to the response
             response[product_id] = {
