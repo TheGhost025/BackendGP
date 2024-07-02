@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+firebase-admin
+pydantic
+scikit-learn
+pandas
+numpy
