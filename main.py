@@ -2,8 +2,7 @@ from fastapi import FastAPI, HTTPException
 import firebase_admin
 from firebase_admin import credentials, db
 from firebase_admin import firestore
-from typing import List, Dict, Union
-from pydantic import BaseModel, EmailStr
+from typing import List, Dict
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 import pandas as pd
@@ -11,6 +10,8 @@ import traceback
 from sklearn.preprocessing import LabelEncoder
 from collections import Counter
 from datetime import datetime
+from models.user_model import NewUser, User
+from models.request_model import PredictRequest, PredictMultipleRequest
 
 
 # Initialize Firebase Admin
@@ -40,22 +41,6 @@ def index():
         users.append(user_data)
 
     return users
-
-
-class NewUser(BaseModel):
-    user_id: str
-    firstName: str
-    lastName: str
-    address: str
-    birthofdate: str
-    gender: str
-    optionaladdress: str
-    usertype: str
-    email: EmailStr
-    cart: List[Dict] = []
-    comment_and_reviews: List[Dict] = []
-    favourite: List[Dict] = []
-    history_purchased: List[Dict] = []
 
 
 @app.post("/users/add-edit/")
@@ -176,10 +161,6 @@ async def train():
         raise HTTPException(status_code=400, detail=str(e))
 
 
-class PredictRequest(BaseModel):
-    features: list
-
-
 @app.post("/predict/")
 async def predict(request: PredictRequest):
     try:
@@ -212,10 +193,6 @@ async def predict(request: PredictRequest):
         print("Traceback:")
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
-
-
-class PredictMultipleRequest(BaseModel):
-    products: list[list[Union[int, float]]]
 
 
 @app.post("/predict_multiple/")
@@ -331,10 +308,6 @@ async def predict_by_id(product_id: str):
         print("Traceback:")
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
-
-
-class User(BaseModel):
-    user_id: str
 
 
 def fetch_user_product_ids(user_id: str):
