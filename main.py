@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 # Initialize Firebase Admin
-cred = credentials.Certificate("ar-furniture-789f5-firebase-adminsdk-w4jtf-e20c880149.json")
+cred = credentials.Certificate("ar-furniture-789f5-firebase-adminsdk-w4jtf-53393ec8c3.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://ar-furniture-789f5-default-rtdb.firebaseio.com/'
 })
