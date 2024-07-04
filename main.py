@@ -114,8 +114,8 @@ def create_user(user: NewUser):
 # ------------- Machine Learning --------------------
 
 
-# Instantiate the KNN NearestNeighbour model with k=3
-knn = NearestNeighbors(n_neighbors=3)
+# Instantiate the KNN NearestNeighbour model
+knn = NearestNeighbors(n_neighbors=7)
 
 
 def fetch_data_from_firebase():
