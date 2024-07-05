@@ -30,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run Server
-        run: uvicorn main:app --reload
+#      - name: Run Server
+#        run: uvicorn main:app --reload
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
