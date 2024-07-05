@@ -1,0 +1,6 @@
+fastapi
+firebase_admin
+pydantic
+scikit-learn
+numpy
+pandas
