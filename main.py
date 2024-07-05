@@ -247,8 +247,7 @@ def initialize_encoders():
     return encoders
 
 
-@app.get("/predict_by_id/{product_id}")
-async def predict_by_id(product_id: str):
+def predict_by_id(product_id: str):
     try:
         # Initialize encoders
         encoders = initialize_encoders()
@@ -310,6 +309,14 @@ async def predict_by_id(product_id: str):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.get("/predict_by_id/{product_id}")
+async def make_prediction_by_id(product_id: str):
+    # Train the Model
+    await train()
+
+    return predict_by_id(product_id)
+
+
 def fetch_user_product_ids(user_id: str):
     collections = ["cart", "comment and reviews", "favourite", "history_purchased"]
     product_ids = []
@@ -338,6 +345,9 @@ async def get_user_products(user: User):
 
 @app.get("/user_products_neighbours/{user_id}")
 async def get_user_products_neighbours(user_id: str):
+    # Train the Model
+    await train()
+
     # Fetch the product IDs associated with the user
     user_product_ids_dict = fetch_user_product_ids(user_id)
 
@@ -351,7 +361,7 @@ async def get_user_products_neighbours(user_id: str):
     for product_id, count in user_product_ids_dict.items():
         try:
             # Get the nearest neighbors for the product
-            neighbours = await predict_by_id(product_id)
+            neighbours = predict_by_id(product_id)
 
             # Print out the structure of the neighbour dictionary
             for neighbour in neighbours:
