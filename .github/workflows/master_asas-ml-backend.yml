@@ -26,13 +26,13 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-      
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-#      - name: Run Server
-#        run: uvicorn main:app --reload
-        
+        #      - name: Run Server
+        #        run: uvicorn main:app --reload
+
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
@@ -64,14 +64,14 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
+      - name: Create Firebase Admin SDK JSON
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > ar-furniture-789f5-firebase-adminsdk-w4jtf-53393ec8c3.json
+
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2C752784F17949448605413DBF67CE3A }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CBD43CD510E249F4BA074D532CA2B7D2 }}
-          client-secret: ${{ secrets.AZUREAPPSERVICE_CLIENTSECRET_jcs8QCTDsSa3CDm7FdOAtPTEdZr5G7Uo6j5aXr }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E1FC492392824F809FFB1D8802FD3AF6 }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
