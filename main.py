@@ -1,4 +1,6 @@
 from datetime import datetime
+
+import uvicorn
 from fastapi import FastAPI
 
 from methods.fetch_methods import *
@@ -207,3 +209,7 @@ async def get_user_products_neighbours(user_id: str):
     }
 
     return response
+
+
+if __name__ == "__main__":
+    uvicorn.run(app)
