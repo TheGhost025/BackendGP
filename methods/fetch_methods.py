@@ -1,14 +1,17 @@
 from firebase_admin import db
-from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 import numpy as np
 from collections import Counter
 from firebase_admin import firestore
 from firebase_admin import credentials
 import firebase_admin
+from methods.encoder_method import initialize_encoders
 
 
 def fetch_products_from_firebase():
+    # Initialize encoders
+    encoders = initialize_encoders()
+
     ref = db.reference('products')
     products = ref.get()
     # print("products", products)
@@ -24,14 +27,6 @@ def fetch_products_from_firebase():
         'sizeZ',
         'weight'
     ]
-    categories = {key: set() for key in ['category', 'material']}
-    if products:
-        for key, value in products.items():
-            for key1 in ['category', 'material']:
-                value1 = value.get(key1, 'N/A')
-                if value1 != 'N/A':
-                    categories[key1].add(value1)
-    encoders = {key: LabelEncoder().fit(list(val)) for key, val in categories.items()}
     if products:
         for key, value in products.items():
             product_features = []
