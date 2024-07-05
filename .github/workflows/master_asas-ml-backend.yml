@@ -70,7 +70,7 @@ jobs:
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2C752784F17949448605413DBF67CE3A }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CBD43CD510E249F4BA074D532CA2B7D2 }}
-          client-secret: ${{ secrets.AZUREAPPSERVICE_CLIENTSECRET_jcs8Q~CTDsSa3CDm7Fd~OAtPTEdZr5G7Uo6j5aXr }}
+          client-secret: ${{ secrets.AZUREAPPSERVICE_CLIENTSECRET_jcs8QCTDsSa3CDm7FdOAtPTEdZr5G7Uo6j5aXr }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E1FC492392824F809FFB1D8802FD3AF6 }}
 
       - name: 'Deploy to Azure Web App'
