@@ -13,20 +13,7 @@ app = FastAPI()
 
 @app.get('/')
 def index():
-    # Reference to the 'users' collection
-    collection_ref = dbs.collection("users")
-
-    # Fetch all documents in the collection
-    docs = collection_ref.stream()
-
-    # Convert documents to a list of dictionaries
-    users: List[Dict] = []
-    for doc in docs:
-        user_data = doc.to_dict()
-        user_data['id'] = doc.id  # Add the document ID to the data
-        users.append(user_data)
-
-    return users
+    return {"message": "Welcome to ASAS Machine Learning"}
 
 
 @app.post("/users/add-edit/")
