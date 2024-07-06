@@ -39,17 +39,17 @@ def create_user(user: NewUser):
             new_or_edit = 1
             user_ref.set(
                 user.dict(by_alias=True,
-                          exclude={"cart", "comment_and_reviews", "favourite", "history_purchased", "user_id"}))
+                          exclude={"cart", "comment_and_reviews", "favorite", "history_purchased", "user_id"}))
         else:
             new_or_edit = 0
             user_ref.set(
                 user.dict(by_alias=True,
-                          exclude={"cart", "comment_and_reviews", "favourite", "history_purchased", "user_id"}))
+                          exclude={"cart", "comment_and_reviews", "favorite", "history_purchased", "user_id"}))
 
         # Create collections by default
         user_ref.collection('cart')
         user_ref.collection('comment and reviews')
-        user_ref.collection('favourite')
+        user_ref.collection('favorite')
         user_ref.collection('history_purchased')
 
         if user.cart:
@@ -62,11 +62,11 @@ def create_user(user: NewUser):
             for item in user.comment_and_reviews:
                 item['date'] = datetime.now()
                 comments_and_reviews_ref.document(item['product_id']).set(item)
-        if user.favourite:
-            favourite_ref = user_ref.collection('favourite')
-            for item in user.favourite:
+        if user.favorite:
+            favorite_ref = user_ref.collection('favorite')
+            for item in user.favorite:
                 item['date'] = datetime.now()
-                favourite_ref.document(item['product_id']).set(item)
+                favorite_ref.document(item['product_id']).set(item)
         if user.history_purchased:
             history_purchased_ref = user_ref.collection('history_purchased')
             for item in user.history_purchased:

@@ -70,7 +70,7 @@ def predict_by_id(product_id: str):
             distance = distances[0][i]
             neighbor_product_id = product_keys[index]
             # Skip the neighbor if its id is the same as the product_id
-            if neighbor_product_id == product_id or distance > 1500:
+            if neighbor_product_id == product_id:
                 continue
             neighbor_product = products[neighbor_product_id]
             response.append({
