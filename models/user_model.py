@@ -14,7 +14,7 @@ class NewUser(BaseModel):
     email: EmailStr
     cart: List[Dict] = []
     comment_and_reviews: List[Dict] = []
-    favourite: List[Dict] = []
+    favorite: List[Dict] = []
     history_purchased: List[Dict] = []
 
 

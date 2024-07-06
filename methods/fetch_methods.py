@@ -56,7 +56,7 @@ dbs = firestore.client()
 
 
 def fetch_user_product_ids(user_id: str):
-    collections = ["cart", "comment and reviews", "favourite", "history_purchased"]
+    collections = ["cart", "comment and reviews", "favorite", "history_purchased"]
     product_ids = []
 
     for collection in collections:
